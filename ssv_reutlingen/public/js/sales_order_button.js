@@ -30,6 +30,18 @@ frappe.ui.form.on('Sales Order', {
                                     options: "Email Template",
                                     in_list_view: 1,
                                 },
+                                {
+                                    fieldtype: "Data",
+                                    fieldname: "subject",
+                                    label: __("Subject"),
+                                    fetch_from: "email_template.subject",
+                                },
+                                {
+                                    fieldtype: "Text Editor",
+                                    fieldname: "response",
+                                    label: __("Response"),
+                                    fetch_from: "email_template.response",
+                                },
                             ],
                             data: frm.doc.items.map(item => ({
                                 item_code: item.item_code,

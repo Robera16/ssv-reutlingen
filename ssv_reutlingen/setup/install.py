@@ -36,13 +36,24 @@ def get_custom_fields():
 			"allow_on_submit": 1,
             "insert_after": "ssv_section"
         },
+	]
+
+	custom_fields_item = [
 		{
-			"fieldname": "ssv_last_section",
+			"label": "SSV Reutlingen",
+			"fieldname": "ssv_reutlingen",
 			"fieldtype": "Section Break",
-			"insert_after": "processed"
-		}
+		},
+        {
+			"label": "Email Template",
+            "fieldname": "email_template",
+            "fieldtype": "Link",
+			"options": "Email Template",
+            "insert_after": "ssv_reutlingen"
+        },
 	]
 
 	return {
-		"Sales Order": custom_fields_sales_order
+		"Sales Order": custom_fields_sales_order,
+		"Item": custom_fields_item
 	}
