@@ -7,7 +7,11 @@ frappe.ui.form.on('Sales Order', {
         
         const has_valid_items = frm.doc.items.some(item => item.item_code);
         if (!frm.doc.processed && has_valid_items && frm.doc.docstatus === 1) {
-            frm.add_custom_button(__('Create Delivery Notes and Send Emails'), function() {
+            frm.add_custom_button(__('Create Delivery Notes and Send Emails'), async function() {
+
+                const emailTemplates = await fetchEmailTemplates();
+                console.log('email templates', emailTemplates)
+                
                 const dialog = new frappe.ui.Dialog({
                     title: __("Create Delivery Notes and Send Emails"),
                     fields: [
@@ -34,13 +38,11 @@ frappe.ui.form.on('Sales Order', {
                                     fieldtype: "Data",
                                     fieldname: "subject",
                                     label: __("Subject"),
-                                    fetch_from: "email_template.subject",
                                 },
                                 {
                                     fieldtype: "Text Editor",
                                     fieldname: "response",
                                     label: __("Response"),
-                                    fetch_from: "email_template.response",
                                 },
                             ],
                             data: frm.doc.items.map(item => ({
@@ -87,6 +89,38 @@ frappe.ui.form.on('Sales Order', {
                 });
                 dialog.show();
             });
+
+            async function fetchEmailTemplates() {
+                // Prepare an array to hold the fetched email templates
+                const emailTemplates = [];
+            
+                // Loop through each item to fetch the email template
+                for (let item of frm.doc.items) {
+                    try {
+                        // Await the asynchronous frappe call for each item
+                        const response = await frappe.call({
+                            method: "frappe.client.get_value",
+                            args: {
+                                doctype: "Item",
+                                filters: { name: item.item_code },
+                                fieldname: "email_template"
+                            }
+                        });
+            
+                        if (response.message && response.message.email_template) {
+                            // Store the email template in the array
+                            emailTemplates.push({
+                                item_code: item.item_code,
+                                email_template: response.message.email_template
+                            });
+                        }
+                    } catch (err) {
+                        console.error(`Error fetching email template for item: ${item.item_code}`, err);
+                    }
+                }
+            
+                return emailTemplates;
+            }
         }
     }
 });
