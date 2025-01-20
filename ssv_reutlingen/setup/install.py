@@ -53,43 +53,7 @@ def get_custom_fields():
         },
 	]
 
-	custom_fields_sales_order_item = [
-		{
-			"label": "SSV Reutlingen",
-			"fieldname": "ssv_reutlingen",
-			"fieldtype": "Section Break",
-		},
-        {
-			"label": "Email Template",
-            "fieldname": "email_template",
-            "fieldtype": "Link",
-			"options": "Email Template",
-			"fetch_from": "item_code.email_template",
-			"insert_after": "ssv_reutlingen"
-        },
-		{
-			"label": "Subject",
-            "fieldname": "subject",
-            "fieldtype": "Data",
-			"fetch_from": "email_template.subject",
-			"insert_after": "email_template"
-        },
-		{
-			"label": "Response",
-            "fieldname": "response",
-            "fieldtype": "Text Editor",
-			"fetch_from": "email_template.response",
-			"insert_after": "subject"
-        },
-		{
-			"fieldname": "ssv_last_section",
-			"fieldtype": "Section Break",
-			"insert_after": "response"
-		},
-	]
-
 	return {
 		"Sales Order": custom_fields_sales_order,
 		"Item": custom_fields_item,
-		"Sales Order Item": custom_fields_sales_order_item
 	}

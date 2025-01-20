@@ -8,10 +8,7 @@ frappe.ui.form.on('Sales Order', {
         const has_valid_items = frm.doc.items.some(item => item.item_code);
         if (!frm.doc.processed && has_valid_items && frm.doc.docstatus === 1) {
             frm.add_custom_button(__('Create Delivery Notes and Send Emails'), async function() {
-
                 const emailTemplates = await fetchEmailTemplates();
-                console.log('email templates', emailTemplates)
-                
                 const dialog = new frappe.ui.Dialog({
                     title: __("Create Delivery Notes and Send Emails"),
                     fields: [
@@ -47,7 +44,9 @@ frappe.ui.form.on('Sales Order', {
                             ],
                             data: frm.doc.items.map(item => ({
                                 item_code: item.item_code,
-                                email_template: "",
+                                email_template: emailTemplates.find(et => et.item_code === item.item_code)?.email_template || "",
+                                subject: emailTemplates.find(et => et.item_code === item.item_code)?.subject || "",
+                                response: emailTemplates.find(et => et.item_code === item.item_code)?.response || "", 
                                 edit_option: 0,
                             })),
                             get_data: () => {
@@ -63,12 +62,7 @@ frappe.ui.form.on('Sales Order', {
                             frappe.msgprint(__("Please map at least one Email Template to proceed."));
                             return;
                         }
-
-                        dialog_data = dialog_data.reduce((acc, item) => {
-                            acc[item.item_code] = item.email_template;
-                            return acc;
-                        }, {});
-
+                        
                         dialog.hide();
                         
                         frappe.call({
@@ -91,34 +85,25 @@ frappe.ui.form.on('Sales Order', {
             });
 
             async function fetchEmailTemplates() {
-                // Prepare an array to hold the fetched email templates
                 const emailTemplates = [];
-            
-                // Loop through each item to fetch the email template
                 for (let item of frm.doc.items) {
-                    try {
-                        // Await the asynchronous frappe call for each item
-                        const response = await frappe.call({
-                            method: "frappe.client.get_value",
-                            args: {
-                                doctype: "Item",
-                                filters: { name: item.item_code },
-                                fieldname: "email_template"
-                            }
-                        });
-            
-                        if (response.message && response.message.email_template) {
-                            // Store the email template in the array
-                            emailTemplates.push({
-                                item_code: item.item_code,
-                                email_template: response.message.email_template
-                            });
+                    const response = await frappe.call({
+                        method: "ssv_reutlingen.api.custom_sales_order.get_email_template",
+                        args: {
+                            item_code: item.item_code
                         }
-                    } catch (err) {
-                        console.error(`Error fetching email template for item: ${item.item_code}`, err);
+                    });
+                    
+                    if (response.message && response.message.email_template) {
+                        emailTemplates.push({
+                            item_code: item.item_code,
+                            email_template: response.message.email_template,
+                            subject: response.message.subject,
+                            response: response.message.response
+                        });
                     }
                 }
-            
+           
                 return emailTemplates;
             }
         }
