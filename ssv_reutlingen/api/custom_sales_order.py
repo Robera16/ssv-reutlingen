@@ -6,8 +6,8 @@ from frappe import _
 def create_delivery_notes(sales_order, dialog_data, items):
 
     sales_order_doc = frappe.get_doc("Sales Order", sales_order)
-    dialog_data = json.loads(dialog_data)
     items = json.loads(items)
+    dialog_data = json.loads(dialog_data)
     
     total_steps = len(items)
     current_step = 0
@@ -26,7 +26,8 @@ def create_delivery_notes(sales_order, dialog_data, items):
         delivery_note_doc.posting_date = frappe.utils.nowdate()
         delivery_note_doc.set("items", [])
         email = sales_order_doc.contact_email
-        template = dialog_data[item.get('item_code')]
+        template = next((it for it in dialog_data if it["item_code"] == item.get('item_code')), None)
+
 
         item_data = {
             "item_code": item.get('item_code'),
@@ -53,12 +54,8 @@ def send_csv_via_email(recipient_email, doc, template):
     try:
         doc = frappe.as_json(doc.as_dict(), indent=2)
 
-        template = frappe.get_doc(
-		"Email Template", template
-	    )
-
-        subject = template.subject
-        message = template.response
+        subject = template['subject']
+        message = template['response']
 
         attachments = [{
             "fname": "delivery_note",
@@ -77,3 +74,37 @@ def send_csv_via_email(recipient_email, doc, template):
         return {"status": "success", "message": _("Email sent successfully.")}
     except Exception as e:
         return {"status": "error", "message": str(e)}
+
+
+@frappe.whitelist()
+def get_email_template(item_code):
+
+    Item = frappe.qb.DocType("Item")
+    EmailTemplate = frappe.qb.DocType("Email Template")
+
+    email_template_name = (
+        frappe.qb.from_(Item)
+        .select(Item.email_template)
+        .where(Item.item_code == item_code)
+    ).run(as_dict=True)
+
+    if not email_template_name or not email_template_name[0].get("email_template"):
+        return {
+            "email_template": "",
+            "subject": "",
+            "response": ""
+        }
+
+    email_template_name = email_template_name[0]["email_template"]
+   
+    email_template_details = (
+        frappe.qb.from_(EmailTemplate)
+        .select(EmailTemplate.subject, EmailTemplate.response)
+        .where(EmailTemplate.name == email_template_name)
+    ).run(as_dict=True)
+
+    return {
+        "email_template": email_template_name,
+        "subject": email_template_details[0].get("subject", ""),
+        "response": email_template_details[0].get("response", "")
+    }
