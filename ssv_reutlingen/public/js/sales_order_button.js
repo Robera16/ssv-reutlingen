@@ -30,10 +30,42 @@ frappe.ui.form.on('Sales Order', {
                                     label: __("Email Template"),
                                     options: "Email Template",
                                     in_list_view: 1,
+                                    onchange: function(){
+                
+                                        const data = dialog.fields_dict.items_with_templates.grid.df.get_data()
+                                        data.forEach(row => {
+                                            const emailTemplate =  row.email_template;
+                                            if (emailTemplate) {
+                                                frappe.call({
+                                                    method: "frappe.client.get",
+                                                    args: {
+                                                        doctype: "Email Template",
+                                                        name: emailTemplate,
+                                                    },
+                                                    callback: function (response) {
+                                                        if (response.message) {
+                                                            const template = response.message;
+                                                           
+                                                            dialog.fields_dict.items_with_templates.df.data.some((doc) => {
+                                                                if (doc.email_template == emailTemplate){
+                                                                    doc.subject = template.subject || ""
+                                                                    doc.response = template.response || ""
+                                                                }
+                                                        
+                                                            });
+
+                                                            dialog.fields_dict.items_with_templates.grid.refresh();
+                                                        }
+                                                    },
+                                                });
+                                            }
+                                        });
+                                    }
                                 },
                                 {
                                     fieldtype: "Data",
                                     fieldname: "subject",
+                                    default: "",
                                     label: __("Subject"),
                                 },
                                 {
