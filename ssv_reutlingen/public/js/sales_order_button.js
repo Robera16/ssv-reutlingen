@@ -65,7 +65,6 @@ frappe.ui.form.on('Sales Order', {
                                 {
                                     fieldtype: "Data",
                                     fieldname: "subject",
-                                    default: "",
                                     label: __("Subject"),
                                 },
                                 {
