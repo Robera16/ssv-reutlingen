@@ -46,6 +46,9 @@ def create_delivery_notes(sales_order, dialog_data, items):
         send_csv_via_email(email, delivery_note_doc, template)
 
     sales_order_doc.db_set("processed", 1)
+    sales_order_doc.db_set("status", "To Bill")
+    sales_order_doc.db_set("delivery_status", "Fully Delivered")
+    sales_order_doc.db_set("per_delivered", 100)
 
     return {"message": "Delivery Notes created successfully!"}
 
