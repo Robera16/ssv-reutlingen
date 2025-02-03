@@ -18,6 +18,9 @@
   "contract_url",
   "column_break_ddcos",
   "notes",
+  "renew_or_expire",
+  "status",
+  "notification_before_days",
   "sponsoring_items_section",
   "sponsoring_items",
   "section_break_vmeaz",
@@ -143,11 +146,29 @@
    "fieldtype": "Table",
    "label": "Contribution Type",
    "options": "Contribution Type"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Active\nExpired",
+   "read_only": 1
+  },
+  {
+   "fieldname": "notification_before_days",
+   "fieldtype": "Int",
+   "label": "Notification Before days"
+  },
+  {
+   "fieldname": "renew_or_expire",
+   "fieldtype": "Select",
+   "label": "Renew or Expire",
+   "options": "Renew Automatically\nExpire Automatically"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-09-25 17:14:18.607644",
+ "modified": "2025-02-03 15:35:12.993958",
  "modified_by": "Administrator",
  "module": "SSV Reutlingen",
  "name": "Sponsoring",

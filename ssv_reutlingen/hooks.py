@@ -113,23 +113,11 @@ before_uninstall = "ssv_reutlingen.setup.install.before_uninstall"
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-#	"all": [
-#		"ssv_reutlingen.tasks.all"
-#	],
-#	"daily": [
-#		"ssv_reutlingen.tasks.daily"
-#	],
-#	"hourly": [
-#		"ssv_reutlingen.tasks.hourly"
-#	],
-#	"weekly": [
-#		"ssv_reutlingen.tasks.weekly"
-#	]
-#	"monthly": [
-#		"ssv_reutlingen.tasks.monthly"
-#	]
-# }
+scheduler_events = {
+	"daily": [
+		"ssv_reutlingen.ssv_reutlingen.doctype.sponsoring.sponsoring.sponsoring_contract_auto_management_background"
+	]
+}
 
 # Testing
 # -------
