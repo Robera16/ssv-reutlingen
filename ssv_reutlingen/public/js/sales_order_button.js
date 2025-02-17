@@ -5,7 +5,8 @@ frappe.ui.form.on('Sales Order', {
             frm.doc.processed = 0
         }
         
-        const has_valid_items = frm.doc.items.some(item => item.item_code);
+        const has_valid_items = frm.doc.items ? frm.doc.items.some(item => item.item_code) : false;
+
         if (!frm.doc.processed && has_valid_items && frm.doc.docstatus === 1) {
             frm.add_custom_button(__('Create Delivery Notes and Send Emails'), async function() {
                 const emailTemplates = await fetchEmailTemplates();
@@ -97,7 +98,7 @@ frappe.ui.form.on('Sales Order', {
                         dialog.hide();
                         
                         frappe.call({
-                            method: "ssv_reutlingen.api.custom_sales_order.create_delivery_notes",
+                            method: "ssv_reutlingen.api.custom_delivery_note.create_delivery_notes",
                             args: {
                                 doctype: "Sales Order",
                                 name: frm.doc.name,
@@ -120,7 +121,7 @@ frappe.ui.form.on('Sales Order', {
                 const emailTemplates = [];
                 for (let item of frm.doc.items) {
                     const response = await frappe.call({
-                        method: "ssv_reutlingen.api.custom_sales_order.get_email_template",
+                        method: "ssv_reutlingen.api.custom_delivery_note.get_email_template",
                         args: {
                             item_code: item.item_code
                         }

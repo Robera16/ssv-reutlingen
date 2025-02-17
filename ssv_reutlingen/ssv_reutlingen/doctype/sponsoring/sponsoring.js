@@ -5,9 +5,14 @@ frappe.ui.form.on('Sponsoring', {
 	refresh: function(frm) {
 		if (frm.is_new()) {
             frm.set_value('processed', 0);
+            const default_company = frappe.defaults.get_default("company");
+            if (default_company) {
+                frm.set_value("company", default_company);
+            }
         }
 
-		const has_valid_items = frm.doc.sponsoring_items.some(item => item.item_code);
+		const has_valid_items = frm.doc.sponsoring_items ? frm.doc.sponsoring_items.some(item => item.item_code) : false;
+        
 		if (!frm.doc.processed && has_valid_items) {
 			frm.add_custom_button(__('Create Delivery Notes and Send Emails'), async function() {
                 const emailTemplates = await fetchEmailTemplates();
@@ -99,7 +104,7 @@ frappe.ui.form.on('Sponsoring', {
                         dialog.hide();
                         
                         frappe.call({
-                            method: "ssv_reutlingen.api.custom_sales_order.create_delivery_notes",
+                            method: "ssv_reutlingen.api.custom_delivery_note.create_delivery_notes",
                             args: {
                                 doctype: "Sponsoring",
                                 name: frm.doc.name,
@@ -122,7 +127,7 @@ frappe.ui.form.on('Sponsoring', {
                 const emailTemplates = [];
                 for (let item of frm.doc.sponsoring_items) {
                     const response = await frappe.call({
-                        method: "ssv_reutlingen.api.custom_sales_order.get_email_template",
+                        method: "ssv_reutlingen.api.custom_delivery_note.get_email_template",
                         args: {
                             item_code: item.item_code
                         }
@@ -205,6 +210,24 @@ frappe.ui.form.on('Sponsoring', {
 });
 
 frappe.ui.form.on('Sponsoring Items', {
+    item_code: function(frm, cdt, cdn){
+        let row = locals[cdt][cdn];
+                
+        frappe.call({
+            method: 'ssv_reutlingen.ssv_reutlingen.doctype.sponsoring.sponsoring.get_item_details',
+            args: {
+                item_code: row.item_code,
+                company: frm.doc.company
+            },
+            callback: function(res) {
+                if (res.message) {
+                    row.warehouse = res.message
+                }
+            }
+        });
+        
+    },
+
 	net_rate: function(frm,cdt,cdn) {
 		let row = locals[cdt][cdn];
 		row.net_amount = calculate_amount(row.net_rate, row.qty)

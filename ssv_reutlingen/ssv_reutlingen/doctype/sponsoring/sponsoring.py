@@ -46,6 +46,17 @@ def calculate_grand_total(net_total):
 
 
 @frappe.whitelist()
+def get_item_details(item_code, company):
+	item_defaults = frappe.db.get_value(
+		"Item Default",
+		{"parent": item_code, "company": company},
+		["default_warehouse"],
+	)
+	
+	return item_defaults
+
+
+@frappe.whitelist()
 def sponsoring_contract_auto_management():
 	"""Background job to update Sponsoring contract status for renewal or expiration."""
 

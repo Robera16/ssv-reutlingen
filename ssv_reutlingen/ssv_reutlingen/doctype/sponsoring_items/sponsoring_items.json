@@ -15,6 +15,7 @@
   "uom",
   "net_amount",
   "discount",
+  "warehouse",
   "column_break_sitcc",
   "todo",
   "delivery_status",
@@ -116,12 +117,17 @@
    "fieldtype": "Float",
    "in_list_view": 1,
    "label": "Quantity"
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Data",
+   "label": "Warehouse"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-02-14 11:20:40.553555",
+ "modified": "2025-02-17 12:30:11.974393",
  "modified_by": "Administrator",
  "module": "SSV Reutlingen",
  "name": "Sponsoring Items",

@@ -33,7 +33,7 @@ def create_delivery_notes(doctype, name, dialog_data, items):
             "item_code": item.get('item_code'),
             "qty": item.get('qty'),
             "rate": item.get('rate') if doctype == "Sales Order" else item.get('net_rate'),
-            "warehouse": item.get('warehouse') if doctype == "Sales Order" else "Stores - P",
+            "warehouse": item.get('warehouse'),
             "uom": item.get('uom'),
         }
         
