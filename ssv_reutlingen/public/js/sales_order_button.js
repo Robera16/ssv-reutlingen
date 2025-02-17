@@ -99,7 +99,8 @@ frappe.ui.form.on('Sales Order', {
                         frappe.call({
                             method: "ssv_reutlingen.api.custom_sales_order.create_delivery_notes",
                             args: {
-                                sales_order: frm.doc.name,
+                                doctype: "Sales Order",
+                                name: frm.doc.name,
                                 dialog_data: dialog_data,
                                 items: frm.doc.items
                             },
