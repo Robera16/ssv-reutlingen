@@ -149,19 +149,30 @@ frappe.ui.form.on('Sponsoring', {
 	},
 
 	onload: function(frm) {
-		if(frm.is_new()){
-			// Get today's date
-			const today = frappe.datetime.get_today();
-			const today_date = new Date(today);
-			const year = today_date.getFullYear();
+        if(frm.is_new()){
+            frappe.call({
+                method: 'get_contract_start',
+                doc: frm.doc,
+                callback: function(res) {
+                    if (res.message) {
+                        frm.set_value('contract_start', res.message);
+                    }
+                }
+            });
+        }
+	},
 
-			// Set the next 1st July
-			const next_july = new Date(year, 6, 1);
-			if (today_date > next_july) {
-				next_july.setFullYear(year + 1);
-			}
-			frm.set_value('contract_start', next_july);
-		}
+    contract_start: function(frm) {
+        frappe.call({
+            method: 'get_contract_end_and_notice_dates',
+            doc: frm.doc,
+            callback: function(res) {
+                if (res.message) {
+                    frm.set_value('contract_end', res.message[0]);
+                    frm.set_value('latest_notice_date', res.message[1]);
+                }
+            }
+        });
 	},
 
     customer: function(frm) {
@@ -180,18 +191,6 @@ frappe.ui.form.on('Sponsoring', {
         });
         
     },
-
-	contract_start: function(frm) {
-		const contract_start_year = new Date(frm.doc.contract_start).getFullYear();
-
-		// Set contract end date to 30th June of the next year
-		const contract_end = new Date(contract_start_year + 1, 5, 30);
-		frm.set_value('contract_end', contract_end);
-
-		// Set the end of December
-		const latest_notice_date = new Date(contract_start_year, 11, 31);
-		frm.set_value('latest_notice_date', latest_notice_date);
-	},
 	
 	net_total: function(frm) {
 		// Set grand total

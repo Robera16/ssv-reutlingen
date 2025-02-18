@@ -4,13 +4,14 @@
 import frappe
 from frappe.model.document import Document
 from frappe.utils import nowdate, add_days, date_diff, getdate
+from datetime import datetime, date
 from frappe import _
 
 class Sponsoring(Document):
 	def validate(self):
 		self.validate_contribution_type()
 		self.set_status()
-
+		
 	def validate_contribution_type(self):
 		total_contribution_amount = 0
 		for ct in self.contribution_type:
@@ -27,15 +28,40 @@ class Sponsoring(Document):
 		return total_net_amount
 
 	def set_status(self):
-		if self.contract_end and getdate(self.contract_end) < getdate(nowdate()):
+		if self.contract_end and getdate(self.contract_end) <= getdate(nowdate()):
 			self.status = "Expired"
 		else:
 			self.status = "Active"
 
+	@frappe.whitelist()
+	def get_contract_start(self):
+		"""Set contract_start to the next 1st of July."""
+		today = datetime.today()
+		year = today.year
+
+		next_july = datetime(year, 7, 1)
+		if today > next_july:
+			next_july = datetime(year + 1, 7, 1)
+
+		next_july = next_july.date()
+		return next_july
+
+	@frappe.whitelist()
+	def get_contract_end_and_notice_dates(self):
+		"""Calculate contract_end and latest_notice_date based on contract_start."""
+		if self.contract_start:
+			contract_start_date = datetime.strptime(str(self.contract_start), '%Y-%m-%d')
+			contract_start_year = contract_start_date.year
+
+			contract_end = date(contract_start_year + 1, 6, 30)
+			latest_notice_date = date(contract_start_year, 12, 31)
+			
+			return contract_end, latest_notice_date
+
 	def enhance_contract(self):
-		if self.contract_start and self.contract_end:
-			self.contract_end = add_days(self.contract_end, date_diff(self.contract_end, self.contract_start))
-			self.contract_start = nowdate()
+		self.contract_start = self.get_contract_start()
+		self.contract_end, self.latest_notice_date = self.get_contract_end_and_notice_dates()
+
 
 @frappe.whitelist()
 def calculate_grand_total(net_total):
@@ -64,7 +90,7 @@ def sponsoring_contract_auto_management():
 	for contract in contracts:
 		contract = frappe.get_doc("Sponsoring", contract.name)
 
-		if getdate(nowdate()) == contract.contract_end:
+		if contract.contract_end <= getdate(nowdate()):
 			if contract.renew_or_expire == "Renew Automatically":
 				contract.enhance_contract()
 				contract.save()
@@ -72,7 +98,6 @@ def sponsoring_contract_auto_management():
 			elif contract.renew_or_expire == "Expire Automatically":
 				contract.set_status()
 				contract.save()
-
 
 
 def sponsoring_contract_auto_management_background():
