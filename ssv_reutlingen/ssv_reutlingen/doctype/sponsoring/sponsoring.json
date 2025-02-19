@@ -22,7 +22,6 @@
   "notes",
   "renew_or_expire",
   "status",
-  "notification_before_days",
   "sponsoring_items_section",
   "sponsoring_items",
   "processed",
@@ -152,11 +151,6 @@
    "options": "Active\nExpired"
   },
   {
-   "fieldname": "notification_before_days",
-   "fieldtype": "Int",
-   "label": "Notification Before days"
-  },
-  {
    "fieldname": "renew_or_expire",
    "fieldtype": "Select",
    "label": "Renew or Expire",
@@ -197,7 +191,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-02-18 07:43:43.257718",
+ "modified": "2025-02-19 08:16:22.440987",
  "modified_by": "Administrator",
  "module": "SSV Reutlingen",
  "name": "Sponsoring",

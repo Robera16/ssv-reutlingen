@@ -114,11 +114,9 @@ before_uninstall = "ssv_reutlingen.setup.install.before_uninstall"
 # ---------------
 
 scheduler_events = {
-	"cron": {
-        "*/5 * * * *": [
-            "ssv_reutlingen.ssv_reutlingen.doctype.sponsoring.sponsoring.sponsoring_contract_auto_management_background"
-        ]
-    }
+	"daily": [
+		"ssv_reutlingen.ssv_reutlingen.doctype.sponsoring.sponsoring.sponsoring_contract_auto_management_background"
+	]
 }
 
 # Testing
